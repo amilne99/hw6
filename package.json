@@ -5,6 +5,7 @@
   "scripts": {},
   "author": "",
   "dependencies": {
-    "neat-csv": "^6.0.1"
+    "neat-csv": "^6.0.1",
+    "netlify-cli": "^3.26.2"
   }
 }
