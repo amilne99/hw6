@@ -19,6 +19,7 @@ exports.handler = async function(event) {
   console.log(moviesFromCsv)
 
   // 🔥 hw6: your recipe and code starts here!
+  // Pull in the inputs from the user in the URL
   let year = event.queryStringParameters.year
   let genre = event.queryStringParameters.genre
   
@@ -38,37 +39,45 @@ exports.handler = async function(event) {
     // Build a for loop that goes through all the movies
     
     for (let i=0; i < moviesFromCsv.length; i++) {
-      //Build a conditional statement that will add the movie to the ReturnValue array if a match
       //Store current listing in memory
       let currentMovie = moviesFromCsv[i]
     
-      //Check if memory matches year and genre
-      // To do: Ignore if no runtime (genre will already be ignored)
+      // Use conditional to check if memory matches year and genre and make sure the movie has a genre and a runtime
+      // Note: The genre check is likely unnecessary given genre is one of the querystring parameters but it is included for redundancy
       
       if (currentMovie.genres.includes(genre) && currentMovie.startYear==year && currentMovie.runtimeMinutes !== "\\N" && currentMovie.genres.includes("\\N")==false) {
-        // If matches, create post object and populate post object with relevant fields
-
-        postObject = {
+        // If matches, create movie object and populate post object with relevant fields
+        movieObject = {
           title: currentMovie.primaryTitle,
           year: currentMovie.startYear,
           genres: currentMovie.genres,
           //runtime: currentMovie.runtimeMinutes //Originally includes to check if any have "//N" in runtime
         }
         // Push post object to return array
-        returnValue.movies.push(postObject)
+        returnValue.movies.push(movieObject)
+
         // Keep count of how many results are returned
         //returnValue.numResults++
       }
       // Determine the number of results based on length of the array. Other method (counting each time one is added) is commented out above
       returnValue.numResults = returnValue.movies.length
     }
+    
+    // Return a seperate error message if the user enters a genre and year but it doesn't return any results, likely due to a spelling or syntax error
+    if (returnValue.numResults == 0) {
+      return {
+        statusCode: 200, // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+        body: `Please make sure you entered the year and genre correctly. The year should have 4 digits (ex: 2018) and the genre should be capitalized (ex: Comedy).` // a string of data
+      }
+    } else {
+      // If there are results to show, display the returnValue object
+        return {
+          statusCode: 200, // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+         // Use json stringify to return the returnValue array as a string
+          body: JSON.stringify(returnValue)
+          
+        }
 
-    // Return the returnValue array
-    return {
-      statusCode: 200, // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-     // Use json stringify to return the returnValue array as a string
-      body: JSON.stringify(returnValue)
-      
+      }
     }
   }
-}
